@@ -1,7 +1,5 @@
 const corsOptions = {
-    origin: [
-       "https://chat-app-frontend-9o27j5oey-nikunj-goels-projects.vercel.app"
-    ],
+    origin:"https://chat-app-frontend-9o27j5oey-nikunj-goels-projects.vercel.app",
     credentials: true, 
    
   };
