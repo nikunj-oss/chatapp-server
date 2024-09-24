@@ -1,5 +1,5 @@
 const corsOptions = {
-    origin:"https://chat-app-frontend-fawn-ten.vercel.app",
+    origin:"https://synq-us.vercel.app/",
     credentials: true, 
    
   };
