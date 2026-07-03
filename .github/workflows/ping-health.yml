@@ -1,0 +1,23 @@
+name: Weekly Ping Health
+
+on:
+  schedule:
+    # every Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    env:
+      HEALTH_URL: ${{ secrets.HEALTH_URL }}
+    steps:
+      - name: Ping health endpoint
+        run: |
+          echo "Pinging $HEALTH_URL"
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
+          echo "HTTP status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Health check failed with status $STATUS"
+            exit 1
+          fi

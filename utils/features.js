@@ -11,9 +11,28 @@ const cookieOptions={
 }
 
 const connectDB = (uri) => {
-    mongoose.connect(uri, { dbName: "Sync" })
-        .then((data) => console.log(`Connected to DB ${data.connection.host}`))
-        .catch((err) => { throw err });
+    const opts = { dbName: "Sync", useNewUrlParser: true, useUnifiedTopology: true, serverSelectionTimeoutMS: 5000 };
+
+    const connectWithRetry = () => {
+        mongoose.connect(uri, opts)
+            .then((data) => console.log(`Connected to DB ${data.connection.host}`))
+            .catch((err) => {
+                console.error('Mongo connect failed, retrying in 5s', err.message);
+                setTimeout(connectWithRetry, 5000);
+            });
+    };
+
+    connectWithRetry();
+
+    mongoose.connection.on('disconnected', () => {
+        console.warn('MongoDB disconnected, attempting reconnect...');
+        // attempt reconnect
+        setTimeout(connectWithRetry, 2000);
+    });
+
+    mongoose.connection.on('reconnected', () => {
+        console.log('MongoDB reconnected');
+    });
 };
 
 const sendToken=(res,user,code,message)=>{

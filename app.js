@@ -8,6 +8,7 @@ import {createServer} from "http"
 import {v4 as uuid } from "uuid"
 import cors from "cors"
 import {v2 as cloudinary} from "cloudinary"
+import mongoose from "mongoose";
 import { CHAT_JOINED, CHAT_LEAVED, NEW_MESSAGE, NEW_MESSAGE_ALERT, ONLINE_USERS, START_TYPING, STOP_TYPING } from "./constants/events.js";
 import { getSockets } from "./lib/helper.js";
 import { Message } from "./models/message.js";
@@ -53,6 +54,17 @@ app.set("io",io)
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors(corsOptions))
+
+// health endpoint for uptime monitors
+app.get('/health', async (req, res) => {
+    try {
+        if (!mongoose.connection || !mongoose.connection.db) throw new Error('no-connection')
+        await mongoose.connection.db.admin().ping();
+        return res.status(200).send('ok');
+    } catch (err) {
+        return res.status(503).send('db-down');
+    }
+});
 
 
 app.use('/api/v1/user', userRoute);
